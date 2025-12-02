@@ -1,4 +1,3 @@
-# ProyectoParadigmas
 # Alien Survivor 2D
 
 Proyecto académico de 3º de carrera desarrollado en **Unity**.  
@@ -27,7 +26,7 @@ El objetivo es **sobrevivir el máximo tiempo posible**, esquivando enemigos, re
   - Mucha más vida y daño.
   - Sueltan recompensas especiales al morir.
 - **Escenario “infinito”**:
-  - Se reutilizan/se desplazan secciones del mapa para que no haya bordes visibles.
+  - Se reutilizan y desplazan secciones del mapa para que no haya bordes visibles.
   - Obstáculos que bloquean el movimiento.
 - **Game Over**:
   - Cuando la vida del jugador llega a 0.
@@ -41,20 +40,18 @@ El objetivo es **sobrevivir el máximo tiempo posible**, esquivando enemigos, re
 - **Esc** → pausar la partida / abrir menú de pausa.
 - El ataque es **automático**, no hay botón de disparo.
 
-*(Los controles se pueden ajustar fácilmente en el Input System de Unity.)*
-
 ---
 
 ## 🧱 Arquitectura (resumen)
 
-He intentado aplicar principios de **diseño de software** (SRP, SOLID) y algunos **patrones de diseño** en la organización del código.
+Se han aplicado principios de **diseño de software** (SRP, SOLID) y algunos **patrones de diseño** en la organización del código.
 
 ### Clases principales
 
-- `GameManager`  
-  Gestiona el ciclo de la partida (inicio, pausa, fin), tiempo, puntuación y referencia a los sistemas principales.
+- **GameManager**  
+  Gestiona el ciclo de la partida (inicio, pausa, fin), tiempo, puntuación y referencias a los sistemas principales.
 
-- `PlayerController`  
+- **PlayerController**  
   Punto central del jugador. Conecta:
   - `PlayerMovement` (movimiento físico),
   - `PlayerHealth` (vida y daño),
@@ -62,24 +59,24 @@ He intentado aplicar principios de **diseño de software** (SRP, SOLID) y alguno
   - `PlayerWeaponManager` (armas equipadas),
   - `PlayerAnimator` (animaciones del jugador).
 
-- `EnemyBase` / `BossEnemy`  
+- **EnemyBase / BossEnemy**  
   Lógica común de enemigos:
   - Movimiento hacia el jugador (o patrones específicos).
   - Daño por contacto.
   - Muerte y generación de experiencia.
   - En el caso de `BossEnemy`, se añade una máquina de estados para fases y ataques especiales.
 
-- `WeaponBase` y derivadas (`ProjectileWeapon`, `AreaWeapon`, etc.)  
+- **WeaponBase** y derivadas (`ProjectileWeapon`, `AreaWeapon`, etc.)  
   Armas con ataque automático y cooldown.  
   Se instancian proyectiles o áreas de daño usando un sistema de **Object Pooling** para optimizar rendimiento.
 
-- `UpgradeManager`  
+- **UpgradeManager**  
   Muestra las opciones de mejora al subir de nivel y aplica la mejora seleccionada al jugador o a sus armas.
 
-- `WaveManager`  
+- **WaveManager**  
   Controla el ritmo de oleadas, el tipo y la cantidad de enemigos que aparecen y el momento en que entra un jefe.
 
-- `UIManager`  
+- **UIManager**  
   Único punto de conexión entre la lógica del juego y la interfaz:
   - Pantalla principal.
   - HUD (vida, experiencia, nivel, tiempo, puntuación).
@@ -89,57 +86,54 @@ He intentado aplicar principios de **diseño de software** (SRP, SOLID) y alguno
 
 ### Patrones y principios usados
 
-- **Singleton / Facade**:  
-  `GameManager`, `AudioManager`, `UIManager` actúan como fachada para simplificar el acceso a sistemas globales.
+- **Singleton / Facade**  
+  `GameManager`, `AudioManager` y `UIManager` actúan como fachada para simplificar el acceso a sistemas globales.
 
-- **Strategy**:  
+- **Strategy**  
   - Diferentes comportamientos de movimiento de enemigos (`IEnemyMovementBehavior`).
   - Diferentes tipos de armas a través de `WeaponBase`.
 
-- **State**:  
+- **State**  
   - Máquina de estados para jefes (`BossState`, `BossStateMachine`).
 
-- **Observer / Event-driven**:  
+- **Observer / Event-driven**  
   - Sistema de eventos (`GameEvents`) para comunicar cambios de vida, experiencia, nivel, score, etc., a la UI.
 
-- **Object Pooling**:  
-  - `ObjectPoolManager` para reutilizar proyectiles, enemigos y pickups y evitar instanciar/destruir todo el rato.
+- **Object Pooling**  
+  - `ObjectPoolManager` para reutilizar proyectiles, enemigos y pickups y evitar instanciar/destruir constantemente.
 
 ---
 
 ## 🗂️ Estructura básica del proyecto
 
-*(Los nombres de carpetas pueden variar un poco, pero la idea es esta.)*
-
 - `Assets/Scripts/Player`  
-  `PlayerController`, `PlayerMovement`, `PlayerHealth`, `PlayerExperience`, `PlayerWeaponManager`, `PlayerAnimator`…
+  Scripts relacionados con el jugador: movimiento, vida, experiencia, armas, animaciones.
 
 - `Assets/Scripts/Enemies`  
-  `EnemyBase`, comportamientos de movimiento, jefes y estados de jefe.
+  Enemigos básicos, comportamientos de movimiento, jefes y estados de jefe.
 
 - `Assets/Scripts/Weapons`  
-  Armas, proyectiles, áreas de daño.
+  Armas, proyectiles y áreas de daño.
 
 - `Assets/Scripts/Upgrades`  
-  Mejoras, stats, gestor de upgrades.
+  Mejoras, stats y gestor de upgrades.
 
 - `Assets/Scripts/Game`  
-  `GameManager`, `WaveManager`, `LevelManager`, `ObjectPoolManager`, `GameEvents`…
+  Gestión de partida, oleadas, escenario y sistema de pooling.
 
 - `Assets/Scripts/UI`  
-  `UIManager`, HUD, menús y pantallas.
+  Gestor de UI, HUD, menús y pantallas de juego.
 
-- `Assets/ScriptableObjects` *(si se usan)*  
-  Datos de armas, oleadas, jefes, upgrades, etc.
+- `Assets/ScriptableObjects`  
+  Datos de armas, oleadas, jefes, upgrades y demás configuraciones.
 
 ---
 
 ## ⚙️ Requisitos
 
-- **Unity**: versión 2021.x o superior (cambiar por la versión real que hayas usado).
-- **.NET / C#**: versión por defecto de esa versión de Unity.
-- Sistema de input:  
-  - Se puede usar el **Input System** nuevo, pero también es fácil adaptarlo al clásico.
+- **Unity**: versión 2021.3 o superior.  
+- **.NET / C#**: versión incluida por defecto en esa versión de Unity.  
+- Sistema de input: compatible con el **nuevo Input System** de Unity.
 
 ---
 
@@ -148,4 +142,4 @@ He intentado aplicar principios de **diseño de software** (SRP, SOLID) y alguno
 1. Clonar el repositorio:
 
    ```bash
-   git clone https://github.com/<tu-usuario>/<tu-repo>.git
+   git clone https://github.com/usuario/alien-survivor-2d.git
